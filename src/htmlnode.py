@@ -16,4 +16,7 @@ class HTMLNode():
         return txt
 
     def __repr__(self):
-        return (self.tag, self.value, self.children, self.props_to_html)
+        children = 0
+        if isinstance(self.children, dict):
+            children = len(self.children)
+        return f"Tag: {self.tag}, Value: {self.value}, Children: {children}, Props: {self.props_to_html()}"
