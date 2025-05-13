@@ -3,7 +3,7 @@ import unittest
 from leafnode import LeafNode
 
 
-class TestTextNode(unittest.TestCase):
+class TestLeafNode(unittest.TestCase):
     def test_impl(self):
         node = LeafNode()
         self.assertRaises(ValueError, node.to_html)

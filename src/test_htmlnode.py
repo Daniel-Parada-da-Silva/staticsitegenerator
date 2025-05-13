@@ -3,7 +3,7 @@ import unittest
 from htmlnode import HTMLNode
 
 
-class TestTextNode(unittest.TestCase):
+class TestHtmlNode(unittest.TestCase):
     def test_impl(self):
         node = HTMLNode()
         self.assertRaises(NotImplementedError, node.to_html)
