@@ -45,7 +45,7 @@ class NodeConverter():
         lst = list()
 
         for item in old_nodes:
-            if item.text_type == TextType.IMAGE:
+            if item.text_type != TextType.TEXT:
                 lst.append(item)
             else:
                 lst.extend(NodeConverter.__split_nodes_url(item.text, regex, TextType.IMAGE))
@@ -57,7 +57,7 @@ class NodeConverter():
         lst = list()
 
         for item in old_nodes:
-            if item.text_type == TextType.LINK:
+            if item.text_type != TextType.TEXT:
                 lst.append(item)
             else:
                 lst.extend(NodeConverter.__split_nodes_url(item.text, regex, TextType.LINK))
@@ -83,6 +83,19 @@ class NodeConverter():
         if len(txt) > 0:
             lst.append(TextNode(txt, TextType.TEXT))
         return lst
+    
+    def text_to_textnodes(text):
+        nodes = [TextNode(text, TextType.TEXT)]
+        nodes = NodeConverter.split_nodes_delimiter(nodes, "**", TextType.BOLD)
+        nodes = NodeConverter.split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+        nodes = NodeConverter.split_nodes_delimiter(nodes, "`", TextType.CODE)
+        nodes = NodeConverter.split_nodes_image(nodes)
+        nodes = NodeConverter.split_nodes_link(nodes)
+        return nodes
+    
+    def markdown_to_blocks(markdown):
+        blocks = markdown.split("\n\n")
+        return list(map(str.strip, blocks))
                 
 
     # def __process_markdown_common(regex, text):
