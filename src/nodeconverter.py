@@ -1,3 +1,5 @@
+import re
+
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode
 from leafnode import LeafNode
@@ -28,4 +30,28 @@ class NodeConverter():
                         lst.append(TextNode(new_text, type_text[mdl]))
         return lst
 
-    #def markdown_to_text_nodes(markdown_text):
+    def extract_markdown_images(text):
+        regex = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
+        return re.findall(regex, text)
+        # return NodeConverter.__process_markdown_common(regex, text)
+    
+    def extract_markdown_links(text):
+        regex = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
+        return re.findall(regex, text)
+        # return NodeConverter.__process_markdown_common(regex, text)
+    
+    #def split_nodes_image(old_nodes):
+
+
+    # def __process_markdown_common(regex, text):
+    #     matches = re.findall(regex, text)
+    #     lst = list()
+
+    #     for match in matches:
+    #         print(match)
+    #         aux = match[2:].spilt("]", 1)
+    #         txt = aux[0]
+    #         link = aux[1][1:-1] #Obtains the 2nd part, trimming both the ( and the )
+    #         lst.append((txt, link))
+        
+    #     return lst

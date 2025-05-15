@@ -54,3 +54,9 @@ class TestNodeConverter(unittest.TestCase):
             TextNode("bold block", TextType.BOLD),
             TextNode(" word", TextType.TEXT),
         ])
+    
+    def test_extract_markdown_images(self):
+        matches = NodeConverter.extract_markdown_images(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
+        )
+        self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], matches)
