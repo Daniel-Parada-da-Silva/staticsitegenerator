@@ -95,7 +95,7 @@ class NodeConverter():
     
     def markdown_to_blocks(markdown):
         blocks = markdown.split("\n\n")
-        return list(map(str.strip, blocks))
+        return [item for item in list(map(str.strip, blocks)) if item != ""]
                 
 
     # def __process_markdown_common(regex, text):
