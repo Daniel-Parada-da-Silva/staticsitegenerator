@@ -40,8 +40,50 @@ class NodeConverter():
         return re.findall(regex, text)
         # return NodeConverter.__process_markdown_common(regex, text)
     
-    #def split_nodes_image(old_nodes):
+    def split_nodes_image(old_nodes):
+        regex = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
+        lst = list()
 
+        for item in old_nodes:
+            if item.text_type == TextType.IMAGE:
+                lst.append(item)
+            else:
+                lst.extend(NodeConverter.__split_nodes_url(item.text, regex, TextType.IMAGE))
+            
+        return lst
+    
+    def split_nodes_link(old_nodes):
+        regex = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
+        lst = list()
+
+        for item in old_nodes:
+            if item.text_type == TextType.LINK:
+                lst.append(item)
+            else:
+                lst.extend(NodeConverter.__split_nodes_url(item.text, regex, TextType.LINK))
+            
+        return lst
+    
+    def __split_nodes_url(text, regex, type):
+        lst = list()
+        txt = text
+        matches = re.findall(regex, text)
+        trimming = -1
+        if type == TextType.IMAGE:
+            trimming = -2
+        
+        for match in matches:
+            delimiter = match[0] + "](" + match[1]
+            aux = txt.split(delimiter, 1)
+            trimmed = aux[0][:trimming]
+            if len(trimmed) > 0:
+                lst.append(TextNode(trimmed,TextType.TEXT))
+            lst.append(TextNode(match[0], type, match[1]))
+            txt = aux[1][1:]
+        if len(txt) > 0:
+            lst.append(TextNode(txt, TextType.TEXT))
+        return lst
+                
 
     # def __process_markdown_common(regex, text):
     #     matches = re.findall(regex, text)
