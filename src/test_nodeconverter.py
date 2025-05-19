@@ -1,16 +1,14 @@
 import unittest
 
 from textnode import TextNode, TextType
-from htmlnode import HTMLNode
-from leafnode import LeafNode
-from parentnode import ParentNode
-from nodeconverter import NodeConverter
+from nodeconverter import *
+from blockconverter import *
 
 
 class TestNodeConverter(unittest.TestCase):
     def test_split_node_delimiter_1(self):
         node = TextNode("This is text with a `code block` word", TextType.TEXT)
-        new_nodes = NodeConverter.split_nodes_delimiter([node], "`", TextType.CODE)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
         self.assertEqual(new_nodes, [
             TextNode("This is text with a ", TextType.TEXT),
             TextNode("code block", TextType.CODE),
@@ -19,7 +17,7 @@ class TestNodeConverter(unittest.TestCase):
     
     def test_split_node_delimiter_2(self):
         node = TextNode("`This is text with a code block` word", TextType.TEXT)
-        new_nodes = NodeConverter.split_nodes_delimiter([node], "`", TextType.CODE)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
         self.assertEqual(new_nodes, [
             TextNode("This is text with a code block", TextType.CODE),
             TextNode(" word", TextType.TEXT),
@@ -27,7 +25,7 @@ class TestNodeConverter(unittest.TestCase):
     
     def test_split_node_delimiter_3(self):
         node = TextNode("`This is text with a code block word`", TextType.TEXT)
-        new_nodes = NodeConverter.split_nodes_delimiter([node], "`", TextType.CODE)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
         self.assertEqual(new_nodes, [
             TextNode("This is text with a code block word", TextType.CODE)
         ])
@@ -36,7 +34,7 @@ class TestNodeConverter(unittest.TestCase):
         node1 = TextNode("This is text with a `code block` word", TextType.TEXT)
         node2 = TextNode("`This is text with a code block` word", TextType.TEXT)
         node3 = TextNode("`This is text with a code block word`", TextType.TEXT)
-        new_nodes = NodeConverter.split_nodes_delimiter([node1, node2, node3], "`", TextType.CODE)
+        new_nodes = split_nodes_delimiter([node1, node2, node3], "`", TextType.CODE)
         self.assertEqual(new_nodes, [
             TextNode("This is text with a ", TextType.TEXT),
             TextNode("code block", TextType.CODE),
@@ -48,7 +46,7 @@ class TestNodeConverter(unittest.TestCase):
     
     def test_text_split_node_delimiter_5(self):
         node = TextNode("This is a text with a **bold block** word", TextType.TEXT)
-        new_nodes = NodeConverter.split_nodes_delimiter([node], "**", TextType.BOLD)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
         self.assertEqual(new_nodes, [
             TextNode("This is a text with a ", TextType.TEXT),
             TextNode("bold block", TextType.BOLD),
@@ -57,7 +55,7 @@ class TestNodeConverter(unittest.TestCase):
     
     def test_text_split_node_delimiter_6(self):
         node = TextNode("This **is a text** with a **bold block** word", TextType.TEXT)
-        new_nodes = NodeConverter.split_nodes_delimiter([node], "**", TextType.BOLD)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
         self.assertEqual(new_nodes, [
             TextNode("This ", TextType.TEXT),
             TextNode("is a text", TextType.BOLD),
@@ -67,7 +65,7 @@ class TestNodeConverter(unittest.TestCase):
         ])
     
     def test_extract_markdown_images(self):
-        matches = NodeConverter.extract_markdown_images(
+        matches = extract_markdown_images(
             "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
         )
         self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], matches)
@@ -77,7 +75,7 @@ class TestNodeConverter(unittest.TestCase):
             "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
             TextType.TEXT,
         )
-        new_nodes = NodeConverter.split_nodes_image([node])
+        new_nodes = split_nodes_image([node])
         self.assertListEqual(
             [
                 TextNode("This is text with an ", TextType.TEXT),
@@ -95,7 +93,7 @@ class TestNodeConverter(unittest.TestCase):
             "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and a duplicate ![image](https://i.imgur.com/zjjcJKZ.png)",
             TextType.TEXT,
         )
-        new_nodes = NodeConverter.split_nodes_image([node])
+        new_nodes = split_nodes_image([node])
         self.assertListEqual(
             [
                 TextNode("This is text with an ", TextType.TEXT),
@@ -111,7 +109,7 @@ class TestNodeConverter(unittest.TestCase):
             "This is text with an [link](https://boot.dev) and another [second link](https://youtube.es)",
             TextType.TEXT,
         )
-        new_nodes = NodeConverter.split_nodes_link([node])
+        new_nodes = split_nodes_link([node])
         self.assertListEqual(
             [
                 TextNode("This is text with an ", TextType.TEXT),
@@ -129,7 +127,7 @@ class TestNodeConverter(unittest.TestCase):
             "This is text with an [link](https://boot.dev) and a duplicate [link](https://boot.dev)",
             TextType.TEXT,
         )
-        new_nodes = NodeConverter.split_nodes_link([node])
+        new_nodes = split_nodes_link([node])
         self.assertListEqual(
             [
                 TextNode("This is text with an ", TextType.TEXT),
@@ -142,7 +140,7 @@ class TestNodeConverter(unittest.TestCase):
     
     def test_text_to_textnodes(self):
         text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
-        new_nodes = NodeConverter.text_to_textnodes(text)
+        new_nodes = text_to_textnodes(text)
         self.assertListEqual(
             [
                 TextNode("This is ", TextType.TEXT),
@@ -169,7 +167,7 @@ This is the same paragraph on a new line
 - This is a list
 - with items
 """
-        blocks = NodeConverter.markdown_to_blocks(md)
+        blocks = markdown_to_blocks(md)
         self.assertEqual(
             blocks,
             [
