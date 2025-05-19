@@ -26,3 +26,7 @@ def block_to_block_type(text):
     if re.match(r"^(?:[1-9]\d*\. .*\n?)+", text):
         return BlockType.OL
     return BlockType.PARAGRAPH
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    
