@@ -1,6 +1,7 @@
 import re
 
 from textnode import TextNode, TextType
+from blocknode import BlockNode, BlockType
 
 def text_node_to_html_node(text_node):
     if not isinstance(text_node, TextNode):
@@ -87,17 +88,28 @@ def text_to_textnodes(text):
     nodes = split_nodes_image(nodes)
     nodes = split_nodes_link(nodes)
     return nodes
-            
 
-# def __process_markdown_common(regex, text):
-#     matches = re.findall(regex, text)
-#     lst = list()
+#### BLOCK
 
-#     for match in matches:
-#         print(match)
-#         aux = match[2:].spilt("]", 1)
-#         txt = aux[0]
-#         link = aux[1][1:-1] #Obtains the 2nd part, trimming both the ( and the )
-#         lst.append((txt, link))
-    
-#     return lst
+def markdown_to_blocks(markdown):
+    blocks = markdown.split("\n\n")
+    return [item for item in list(map(str.strip, blocks)) if item != ""]
+
+def block_to_block_type(text):
+    if re.match(r"^#{1,6} ", text):
+        return BlockType.HEADING
+    if re.match(r"^'''([\s\S]*?)'''$", text):
+        return BlockType.CODE
+    if re.match(r"^>", text):
+        return BlockType.QUOTE
+    if re.match(r"^(- .*\n?)+", text):
+        return BlockType.UL
+    if re.match(r"^(?:[1-9]\d*\. .*\n?)+", text):
+        return BlockType.OL
+    return BlockType.PARAGRAPH
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    lst = list()
+    for block in blocks:
+        lst.append(block, block_to_block_type(block))

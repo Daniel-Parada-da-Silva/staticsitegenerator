@@ -2,7 +2,6 @@ import unittest
 
 from textnode import TextNode, TextType
 from nodeconverter import *
-from blockconverter import *
 
 
 class TestNodeConverter(unittest.TestCase):

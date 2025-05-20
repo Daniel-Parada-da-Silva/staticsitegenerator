@@ -1,4 +1,5 @@
 from textnode import *
+from blocknode import *
 from nodeconverter import *
 
 print("hello world")
