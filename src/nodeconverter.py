@@ -1,7 +1,10 @@
 import re
 
+from enum import Enum
+
 from textnode import TextNode, TextType
-from blocknode import BlockNode, BlockType
+from parentnode import ParentNode
+from leafnode import LeafNode
 
 def text_node_to_html_node(text_node):
     if not isinstance(text_node, TextNode):
@@ -98,7 +101,7 @@ def markdown_to_blocks(markdown):
 def block_to_block_type(text):
     if re.match(r"^#{1,6} ", text):
         return BlockType.HEADING
-    if re.match(r"^'''([\s\S]*?)'''$", text):
+    if re.match(r"^```([\s\S]*?)```$", text):
         return BlockType.CODE
     if re.match(r"^>", text):
         return BlockType.QUOTE
@@ -110,6 +113,65 @@ def block_to_block_type(text):
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
-    lst = list()
+    root = ParentNode("div", list())
     for block in blocks:
-        lst.append(block, block_to_block_type(block))
+        root.children.append(BlockNode(block, block_to_block_type(block)).to_html_node())
+    return root
+
+class BlockType(Enum):
+    PARAGRAPH = "Paragraph"
+    HEADING = "Heading"
+    CODE = "Code"
+    QUOTE = "Quote"
+    UL = "Unordered_List"
+    OL = "Ordered_List"
+
+class BlockNode():
+    def __init__(self, text, block_type):
+        self.text = text
+        self.block_type = block_type
+    
+    def to_html_node(self):
+        node = ParentNode("p", list())
+        match(self.block_type):
+            case(BlockType.CODE):
+                node.tag = "pre"
+                node.children.append(LeafNode("code", self.text[4:-3]))
+                return node #This case doesn't need more processing
+            case(BlockType.PARAGRAPH):
+                self.text = " ".join(self.text.split("\n")) #We keep the node as it is
+            case(BlockType.HEADING):
+                splited = self.text.split(" ", 1)
+                node.tag = f"h{len(splited[0])}"
+                self.text = splited[1]
+            case(BlockType.QUOTE):
+                node.tag = "blockquote"
+                self.text = self.text[1:]
+            case(BlockType.OL):
+                node.tag = "ol"
+                node.chi
+                pass
+            case(BlockType.UL):
+                node.tag = "ul"
+                pass
+            case _:
+                raise Exception(f"Not a valid Node Type: {self.block_type}")
+        node.children.extend(self.__text_to_children())
+        return node
+    
+    def __text_to_children(self):
+        if self.block_type == BlockType.OL or self.block_type == BlockType.UL:
+            regex = r""
+            lst = list[ParentNode]()
+            if self.block_type == BlockType.OL:
+                regex = r"\d+\.\s*(.+)"
+            if self.block_type == BlockType.UL:
+                regex = r"-\s*(.+)"
+            for li in re.findall(regex, self.text):
+                children = list(map(text_node_to_html_node, text_to_textnodes(self.text)))
+                node = ParentNode("li", children)
+                lst.append(node)
+            return lst
+        else:    
+            return list(map(text_node_to_html_node, text_to_textnodes(self.text)))
+        
