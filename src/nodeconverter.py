@@ -190,17 +190,29 @@ def generate_page(from_path, template_path, dest_path):
     template = template.replace("{{ Title }}", title)
     template = template.replace("{{ Content }}", content)
 
-    os.makedirs("/".join(dest_path.split("/")[:-1]), exist_ok= True)
-
     write_into_file(dest_path, template)
 
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    path = dir_path_content
+    lst = os.listdir(path)
+    new_path = dest_dir_path
+    if not os.path.exists(new_path):
+        os.mkdir(new_path)
+    for item in lst:
+        current = path + item
+        new_current = new_path + item
+        if os.path.isfile(current):
+            generate_page(current, template_path, new_current.replace(".md",".html"))
+        else:
+            generate_pages_recursive(current + "/", template_path, new_current + "/")
+
 def read_from_file(path):
-    f = open(path)
+    f = open(path, "r", -1, encoding= "utf-8")
     txt = f.read()
     f.close()
     return txt
 
 def write_into_file(path, content):
-    f = open(path, "w")
+    f = open(path, "w", encoding= "utf-8")
     f.write(content)
     f.close()
