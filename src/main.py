@@ -20,5 +20,6 @@ def publish(path: str):
 def main():
     shutil.rmtree("./public/", ignore_errors = True)
     publish("./static/")
+    generate_page("./content/index.md", "./template.html", "./public/index.html")
 
 main()

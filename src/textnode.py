@@ -32,7 +32,7 @@ class TextNode():
                 node.tag = "a"
                 node.props = {"href": self.url}
             case(TextType.IMAGE):
-                node = LeafNode("img", None, {"src": self.url, "alt": self.text})
+                node = LeafNode("img", "", {"src": self.url, "alt": self.text})
             case _:
                 raise Exception(f"Not a valid Node Type: {self.text_type}")
         return node

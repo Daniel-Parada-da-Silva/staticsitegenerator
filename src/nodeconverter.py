@@ -1,4 +1,5 @@
 import re
+import os
 
 from enum import Enum
 
@@ -146,14 +147,11 @@ class BlockNode():
                 self.text = splited[1]
             case(BlockType.QUOTE):
                 node.tag = "blockquote"
-                self.text = self.text[1:]
+                self.text = self.text[1:].replace(">", "<br/>").strip()
             case(BlockType.OL):
                 node.tag = "ol"
-                node.chi
-                pass
             case(BlockType.UL):
                 node.tag = "ul"
-                pass
             case _:
                 raise Exception(f"Not a valid Node Type: {self.block_type}")
         node.children.extend(self.__text_to_children())
@@ -168,10 +166,41 @@ class BlockNode():
             if self.block_type == BlockType.UL:
                 regex = r"-\s*(.+)"
             for li in re.findall(regex, self.text):
-                children = list(map(text_node_to_html_node, text_to_textnodes(self.text)))
+                children = list(map(text_node_to_html_node, text_to_textnodes(li)))
                 node = ParentNode("li", children)
                 lst.append(node)
             return lst
         else:    
             return list(map(text_node_to_html_node, text_to_textnodes(self.text)))
-        
+
+def extract_title(markdown):
+    lst = re.findall(r"^# (.+)\n", markdown)
+    if len(lst) < 1:
+        raise Exception("There is no title")
+    return lst[0]
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    template = read_from_file(template_path)
+    markdown = read_from_file(from_path)
+    title = extract_title(markdown)
+    
+    content = markdown_to_html_node(markdown).to_html()
+
+    template = template.replace("{{ Title }}", title)
+    template = template.replace("{{ Content }}", content)
+
+    os.makedirs("/".join(dest_path.split("/")[:-1]), exist_ok= True)
+
+    write_into_file(dest_path, template)
+
+def read_from_file(path):
+    f = open(path)
+    txt = f.read()
+    f.close()
+    return txt
+
+def write_into_file(path, content):
+    f = open(path, "w")
+    f.write(content)
+    f.close()
