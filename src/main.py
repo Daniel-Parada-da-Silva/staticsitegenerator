@@ -1,25 +1,30 @@
 import os
 import shutil
+import sys
 
 from textnode import *
 from blocknode import *
 from nodeconverter import *
 
-def publish(path: str):
+def publish(path: str, orgn: str, dest: str):
     lst = os.listdir(path)
-    new_path = path.replace("static", "public")
+    new_path = path.replace(orgn, dest)
     if not os.path.exists(new_path):
         os.mkdir(new_path)
     for item in lst:
         current = path + item
         if os.path.isfile(current):
-            shutil.copy(current, current.replace("static", "public"))
+            shutil.copy(current, current.replace(orgn, dest))
         else:
-            publish(current + "/")
+            publish(current + "/", orgn, dest)
 
 def main():
-    shutil.rmtree("./public/", ignore_errors = True)
-    publish("./static/")
-    generate_pages_recursive("./content/", "./template.html", "./public/")
+    basepath = sys.argv[1]
+    orgn = "static"
+    dest = sys.argv[2]
+    
+    shutil.rmtree("./{dest}/", ignore_errors = True)
+    publish(f"./{orgn}/", orgn, dest)
+    generate_pages_recursive("./content/", "./template.html", f"./{dest}/", basepath)
 
 main()

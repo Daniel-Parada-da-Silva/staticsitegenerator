@@ -179,7 +179,7 @@ def extract_title(markdown):
         raise Exception("There is no title")
     return lst[0]
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     template = read_from_file(template_path)
     markdown = read_from_file(from_path)
@@ -189,10 +189,12 @@ def generate_page(from_path, template_path, dest_path):
 
     template = template.replace("{{ Title }}", title)
     template = template.replace("{{ Content }}", content)
+    template = template.replace("href=\"/", f"href=\"{basepath}")
+    template = template.replace("src=\"/", f"src=\"{basepath}")
 
     write_into_file(dest_path, template)
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     path = dir_path_content
     lst = os.listdir(path)
     new_path = dest_dir_path
@@ -202,9 +204,9 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         current = path + item
         new_current = new_path + item
         if os.path.isfile(current):
-            generate_page(current, template_path, new_current.replace(".md",".html"))
+            generate_page(current, template_path, new_current.replace(".md",".html"), basepath)
         else:
-            generate_pages_recursive(current + "/", template_path, new_current + "/")
+            generate_pages_recursive(current + "/", template_path, new_current + "/", basepath)
 
 def read_from_file(path):
     f = open(path, "r", -1, encoding= "utf-8")
